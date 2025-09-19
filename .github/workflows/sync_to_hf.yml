@@ -11,11 +11,12 @@ jobs:
       - uses: actions/checkout@v3
       - name: Push to Hugging Face Space
         run: |
-          git config --global user.email "your@email.com"
-          git config --global user.name "your-username"
-          git clone https://huggingface.co/spaces/USERNAME/SPACE_NAME hf_space
+          git config --global user.email "kira.iovenko@gmail.com"
+          git config --global user.name "kira-iovenko"
+          git clone https://kiovenko:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
           rsync -av --exclude='.git' ./ hf_space/
           cd hf_space
           git add .
           git commit -m "Sync from GitHub" || echo "No changes"
-          git push https://USERNAME:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/USERNAME/SPACE_NAME main
+          git push https://kiovenko:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/kiovenko/scheduleBot_UI main
+
