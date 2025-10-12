@@ -3,6 +3,7 @@ name: Sync to Hugging Face
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -12,7 +13,7 @@ jobs:
 
       - name: Push to Hugging Face Space
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_SECRET }}
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
