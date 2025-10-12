@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shift Scheduler</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="main-header">
+    <h1>Shift Scheduler</h1>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="employeesTab">Employees</button>
+      <button class="tab-btn" data-tab="demandTab">Demand</button>
+      <button class="tab-btn" data-tab="scheduleTab">Schedule Preview</button>
+      <button class="tab-btn" data-tab="settingsTab">Settings</button>
+    </nav>
+  </header>
+  <main>
+    
+    <section id="employeesTab" class="tab-content active">
+      <div class="tab-header">
+        <h2>Employees</h2>
+        <button id="addEmployeeBtn">+ Add Employee</button>
+      </div>
+
+      <div class="form-container" id="employeeForm">
+        <h3>New Employee</h3>
+        <input type="text" id="employeeName" placeholder="Full Name">
+        <input type="number" id="employeeAge" placeholder="Age">
+        
+        <select id="employeeJob">
+          <option value="">Select Job</option>
+          <option value="Manager">Manager</option>
+          <option value="Server">Server</option>
+          <option value="Driver">Driver</option>
+        </select>
+
+        <label for="startTime">Availability Start:</label>
+        <input type="time" id="startTime">
+
+        <label for="endTime">Availability End:</label>
+        <input type="time" id="endTime">
+
+        <div class="form-actions">
+          <button class="cancel-btn" id="cancelBtn">Cancel</button>
+          <button class="save-btn" id="saveBtn">Save Employee</button>
+        </div>
+      </div>
+
+      <div class="employee-list">
+        <h3>Employee List</h3>
+        <table id="employeeTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Job</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="employeeTableBody">
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="demandTab" class="tab-content">
+      <h2>Demand</h2>
+    </section>
+
+    <section id="scheduleTab" class="tab-content">
+      <h2>Schedule Preview</h2>
+    </section>
+
+    <section id="settingsTab" class="tab-content">
+      <h2>Settings</h2>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
