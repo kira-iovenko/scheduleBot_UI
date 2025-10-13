@@ -22,6 +22,7 @@ const employeeTableBody = document.getElementById('employeeTableBody');
 
 let editingRow = null;
 
+// === Utility functions ===
 function showForm() {
   employeeForm.style.display = 'block';
 }
@@ -37,8 +38,34 @@ function clearForm() {
   saveBtn.textContent = 'Save Employee';
   editingRow = null;
 }
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 
+// === Local Storage ===
+function loadEmployees() {
+  const stored = JSON.parse(localStorage.getItem('employees')) || [];
+  stored.forEach(emp => addEmployeeRow(emp));
+}
+function saveEmployees() {
+  const rows = Array.from(employeeTableBody.querySelectorAll('tr'));
+  const data = rows.map(row => ({
+    name: row.cells[0].textContent,
+    age: row.cells[1].textContent === 'N/A' ? '' : row.cells[1].textContent,
+    job: row.cells[2].textContent,
+    start: row.cells[3].textContent,
+    end: row.cells[4].textContent
+  }));
+  localStorage.setItem('employees', JSON.stringify(data));
+}
+
+// === Event listeners ===
 hideForm();
+loadEmployees();
+
 addEmployeeBtn.addEventListener('click', () => {
   clearForm();
   showForm();
@@ -60,6 +87,13 @@ saveBtn.addEventListener('click', () => {
     alert('Please fill out all required fields (Name, Job, Start, End).');
     return;
   }
+  if (start >= end) {
+    alert('End time must be later than start time.');
+    return;
+  }
+
+  const empData = { name, age, job, start, end };
+
   if (editingRow) {
     editingRow.cells[0].textContent = name;
     editingRow.cells[1].textContent = age || 'N/A';
@@ -68,47 +102,48 @@ saveBtn.addEventListener('click', () => {
     editingRow.cells[4].textContent = end;
     hideForm();
     clearForm();
+    saveEmployees();
     return;
   }
+
+  addEmployeeRow(empData);
+  hideForm();
+  clearForm();
+  saveEmployees();
+});
+
+function addEmployeeRow(empData) {
   const row = document.createElement('tr');
 
   row.innerHTML = `
-    <td>${escapeHtml(name)}</td>
-    <td>${escapeHtml(age || 'N/A')}</td>
-    <td>${escapeHtml(job)}</td>
-    <td>${escapeHtml(start)}</td>
-    <td>${escapeHtml(end)}</td>
+    <td>${escapeHtml(empData.name)}</td>
+    <td>${escapeHtml(empData.age || 'N/A')}</td>
+    <td>${escapeHtml(empData.job)}</td>
+    <td>${escapeHtml(empData.start)}</td>
+    <td>${escapeHtml(empData.end)}</td>
     <td>
       <button class="action-btn edit-btn">Edit</button>
       <button class="action-btn delete-btn">Delete</button>
     </td>
   `;
+
   row.querySelector('.delete-btn').addEventListener('click', () => {
-    row.remove();
-    if (editingRow === row) {
-      hideForm();
-      clearForm();
+    if (confirm(`Are you sure you want to delete ${empData.name}?`)) {
+      row.remove();
+      saveEmployees();
     }
   });
 
   row.querySelector('.edit-btn').addEventListener('click', () => {
     editingRow = row;
-    document.getElementById('employeeName').value = row.cells[0].textContent;
-    document.getElementById('employeeAge').value = (row.cells[1].textContent === 'N/A') ? '' : row.cells[1].textContent;
-    document.getElementById('employeeJob').value = row.cells[2].textContent;
-    document.getElementById('startTime').value = row.cells[3].textContent;
-    document.getElementById('endTime').value = row.cells[4].textContent;
+    document.getElementById('employeeName').value = empData.name;
+    document.getElementById('employeeAge').value = empData.age;
+    document.getElementById('employeeJob').value = empData.job;
+    document.getElementById('startTime').value = empData.start;
+    document.getElementById('endTime').value = empData.end;
     saveBtn.textContent = 'Update Employee';
     showForm();
   });
 
   employeeTableBody.appendChild(row);
-  hideForm();
-  clearForm();
-});
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
 }
