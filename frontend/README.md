@@ -2,12 +2,13 @@
 title: ScheduleBot UI
 emoji: 🧭
 colorFrom: yellow
-colorTo: orange  # ⚠️ orange is not allowed, so pick another, e.g., yellow or red
+colorTo: red
 sdk: static
 sdk_version: "1.0"
 app_file: index.html
 pinned: false
 ---
+
 
 # 🧭 ScheduleBot UI
 
