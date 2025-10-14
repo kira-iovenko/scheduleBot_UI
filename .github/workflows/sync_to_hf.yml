@@ -25,14 +25,18 @@ jobs:
 
           # Enter the Space repo
           cd hf_space
-
+          
+          # Ensure remote is pointing to Hugging Face
+          git remote set-url origin https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI
+          
           # Configure git user
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-
-          # Stage and commit changes
+          
+          # Commit changes
           git add -A
           git commit -m "Sync frontend from GitHub" || echo "No changes to commit"
-
-          # Push to Hugging Face Space
+          
+          # Push to Hugging Face
           git push origin main --force
+          
