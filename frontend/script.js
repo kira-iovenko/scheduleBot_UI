@@ -20,9 +20,15 @@ const cancelBtn = document.getElementById('cancelBtn');
 const saveBtn = document.getElementById('saveBtn');
 const employeeTableBody = document.getElementById('employeeTableBody');
 
-let editingRow = null;
+let editingIndex = null;
 
-// === Utility functions ===
+const employees = [
+  { name: "Alice Johnson", age: "29", job: "Manager", start: "08:00", end: "16:00" },
+  { name: "Ben Carter", age: "22", job: "Server", start: "10:00", end: "18:00" },
+  { name: "Clara Kim", age: "27", job: "Driver", start: "12:00", end: "20:00" },
+  { name: "David Lee", age: "35", job: "Server", start: "09:00", end: "17:00" }
+];
+
 function showForm() {
   employeeForm.style.display = 'block';
 }
@@ -36,7 +42,7 @@ function clearForm() {
   document.getElementById('startTime').value = '';
   document.getElementById('endTime').value = '';
   saveBtn.textContent = 'Save Employee';
-  editingRow = null;
+  editingIndex = null;
 }
 function escapeHtml(str) {
   return String(str)
@@ -45,26 +51,10 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;');
 }
 
-// === Local Storage ===
 function loadEmployees() {
-  const stored = JSON.parse(localStorage.getItem('employees')) || [];
-  stored.forEach(emp => addEmployeeRow(emp));
+  employeeTableBody.innerHTML = '';
+  employees.forEach((emp, index) => addEmployeeRow(emp, index));
 }
-function saveEmployees() {
-  const rows = Array.from(employeeTableBody.querySelectorAll('tr'));
-  const data = rows.map(row => ({
-    name: row.cells[0].textContent,
-    age: row.cells[1].textContent === 'N/A' ? '' : row.cells[1].textContent,
-    job: row.cells[2].textContent,
-    start: row.cells[3].textContent,
-    end: row.cells[4].textContent
-  }));
-  localStorage.setItem('employees', JSON.stringify(data));
-}
-
-// === Event listeners ===
-hideForm();
-loadEmployees();
 
 addEmployeeBtn.addEventListener('click', () => {
   clearForm();
@@ -94,25 +84,22 @@ saveBtn.addEventListener('click', () => {
 
   const empData = { name, age, job, start, end };
 
-  if (editingRow) {
-    editingRow.cells[0].textContent = name;
-    editingRow.cells[1].textContent = age || 'N/A';
-    editingRow.cells[2].textContent = job;
-    editingRow.cells[3].textContent = start;
-    editingRow.cells[4].textContent = end;
-    hideForm();
+  if (editingIndex !== null) {
+    employees[editingIndex] = empData;
+    editingIndex = null;
     clearForm();
-    saveEmployees();
+    hideForm();
+    loadEmployees();
     return;
   }
 
-  addEmployeeRow(empData);
-  hideForm();
+  employees.push(empData);
   clearForm();
-  saveEmployees();
+  hideForm();
+  loadEmployees();
 });
 
-function addEmployeeRow(empData) {
+function addEmployeeRow(empData, index) {
   const row = document.createElement('tr');
 
   row.innerHTML = `
@@ -129,13 +116,13 @@ function addEmployeeRow(empData) {
 
   row.querySelector('.delete-btn').addEventListener('click', () => {
     if (confirm(`Are you sure you want to delete ${empData.name}?`)) {
-      row.remove();
-      saveEmployees();
+      employees.splice(index, 1);
+      loadEmployees();
     }
   });
 
   row.querySelector('.edit-btn').addEventListener('click', () => {
-    editingRow = row;
+    editingIndex = index;
     document.getElementById('employeeName').value = empData.name;
     document.getElementById('employeeAge').value = empData.age;
     document.getElementById('employeeJob').value = empData.job;
@@ -147,3 +134,6 @@ function addEmployeeRow(empData) {
 
   employeeTableBody.appendChild(row);
 }
+
+hideForm();
+loadEmployees();
