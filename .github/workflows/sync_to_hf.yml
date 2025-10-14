@@ -17,11 +17,8 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_SECRET }}
         run: |
-          # Clone the Hugging Face Space repo (full clone)
+          # Clone the Hugging Face Space repo
           git clone https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
-
-          # Copy frontend files to root of hf_space
-          rsync -av --delete ./frontend/ hf_space/
 
           # Enter the Space repo
           cd hf_space
@@ -33,13 +30,18 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-          # Make sure we have full history to avoid shallow-update errors
+          # Reset local to remote to avoid shallow-update errors
           git fetch origin
           git reset --hard origin/main
 
-          # Commit changes
+          # Copy frontend files from GitHub repo root into hf_space root
+          rsync -av --delete ../frontend/ ./
+
+          # Stage changes
           git add -A
+
+          # Commit if there are changes
           git commit -m "Sync frontend from GitHub" || echo "No changes to commit"
 
-          # Push to Hugging Face
+          # Push to Hugging Face Space
           git push origin main --force
