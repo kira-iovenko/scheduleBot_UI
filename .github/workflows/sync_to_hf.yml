@@ -9,10 +9,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      # Checkout your GitHub repository
+      # 1️⃣ Checkout GitHub repo
       - uses: actions/checkout@v3
 
-      # Sync frontend to Hugging Face Space
+      # 2️⃣ Sync frontend to Hugging Face Space
       - name: Push Frontend to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_SECRET }}
@@ -22,26 +22,22 @@ jobs:
 
           # Enter the Space repo
           cd hf_space
-
-          # Ensure remote is pointing to Hugging Face
-          git remote set-url origin https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI
-
-          # Configure git user
+          
+          # Set Git user for commits
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-          # Reset local to remote to avoid shallow-update errors
-          git fetch origin
-          git reset --hard origin/main
+          # Make sure remote points to Hugging Face
+          git remote set-url origin https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI
 
-          # Copy frontend files from GitHub repo root into hf_space root
+          # Copy frontend files into HF root and remove old files
           rsync -av --delete ../frontend/ ./
 
-          # Stage changes
+          # Stage all changes, including deletions
           git add -A
 
-          # Commit if there are changes
+          # Commit changes (skip if nothing changed)
           git commit -m "Sync frontend from GitHub" || echo "No changes to commit"
 
-          # Push to Hugging Face Space
+          # Push to Hugging Face
           git push origin main --force
