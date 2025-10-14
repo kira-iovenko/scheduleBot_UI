@@ -20,8 +20,10 @@ jobs:
           # Clone the Hugging Face Space repo
           git clone https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
 
-          # Copy all files from the GitHub repo to the Space repo
-          rsync -av --delete --exclude='.git' --exclude='hf_space' ./ hf_space/
+          
+          # Copy contents of frontend/ to the root of hf_space
+          rsync -av --delete ./frontend/ hf_space/
+
 
           # Enter the Space repo
           cd hf_space
