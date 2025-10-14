@@ -1,8 +1,8 @@
 ---
 title: ScheduleBot UI
 emoji: 🧭
-colorFrom: "#FF8C00"
-colorTo: "#FFA500"
+colorFrom: yellow
+colorTo: orange  # ⚠️ orange is not allowed, so pick another, e.g., yellow or red
 sdk: static
 sdk_version: "1.0"
 app_file: index.html
