@@ -1,4 +1,4 @@
-name: Sync to Hugging Face
+name: Sync Frontend to Hugging Face
 
 on:
   push:
@@ -12,31 +12,27 @@ jobs:
       # Checkout your GitHub repository
       - uses: actions/checkout@v3
 
-      # Sync to Hugging Face Space
-      - name: Push to Hugging Face Space
+      # Sync frontend to Hugging Face Space
+      - name: Push Frontend to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_SECRET }}
         run: |
           # Clone the Hugging Face Space repo
           git clone https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
 
-          
-          # Copy contents of frontend/ to the root of hf_space
+          # Copy frontend files to root of hf_space
           rsync -av --delete ./frontend/ hf_space/
-
 
           # Enter the Space repo
           cd hf_space
 
-          # Configure git user for commits
+          # Configure git user
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-          # Stage all changes, including deletions
+          # Stage and commit changes
           git add -A
-
-          # Commit changes if any
-          git commit -m "Sync from GitHub" || echo "No changes to commit"
+          git commit -m "Sync frontend from GitHub" || echo "No changes to commit"
 
           # Push to Hugging Face Space
           git push origin main --force
