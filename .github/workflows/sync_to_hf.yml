@@ -9,20 +9,32 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      # Checkout your GitHub repository
       - uses: actions/checkout@v3
 
+      # Sync to Hugging Face Space
       - name: Push to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_SECRET }}
         run: |
+          # Clone the Hugging Face Space repo
+          git clone https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
+
+          # Copy all files from the GitHub repo to the Space repo
+          rsync -av --delete --exclude='.git' ./ hf_space/
+
+          # Enter the Space repo
+          cd hf_space
+
+          # Configure git user for commits
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-          git clone https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
+          # Stage all changes, including deletions
+          git add -A
 
-          rsync -av --exclude='.git' ./ hf_space/
-
-          cd hf_space
-          git add .
+          # Commit changes if any
           git commit -m "Sync from GitHub" || echo "No changes to commit"
+
+          # Push to Hugging Face Space
           git push origin main --force
