@@ -21,7 +21,7 @@ jobs:
           git clone https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
 
           # Copy all files from the GitHub repo to the Space repo
-          rsync -av --delete --exclude='.git' ./ hf_space/
+          rsync -av --delete --exclude='.git' --exclude='hf_space' ./ hf_space/
 
           # Enter the Space repo
           cd hf_space
