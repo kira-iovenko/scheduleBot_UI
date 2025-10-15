@@ -23,6 +23,13 @@ def add_employee(emp: dict):
     employees.append(emp)
     return emp
 
+@app.put("/employees/{id}")
+def update_employee(id: int, data: dict):
+    for emp in employees:
+        if emp["id"] == id:
+            emp.update(data)
+            return emp
+    return {"error": "Not found"}
 
 
 @app.get("/")
