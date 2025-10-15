@@ -31,6 +31,12 @@ def update_employee(id: int, data: dict):
             return emp
     return {"error": "Not found"}
 
+@app.delete("/employees/{id}")
+def delete_employee(id: int):
+    global employees
+    employees = [emp for emp in employees if emp["id"] != id]
+    return {"message": "Deleted"}
+
 
 @app.get("/")
 def read_root():
