@@ -37,6 +37,11 @@ def delete_employee(id: int):
     employees = [emp for emp in employees if emp["id"] != id]
     return {"message": "Deleted"}
 
+@app.post("/schedule")
+def schedule(data: dict):
+    schedule_grid = generate_schedule(data['employees'], data['demand'], data['school_in_session'])
+    return schedule_grid
+
 
 @app.get("/")
 def read_root():
