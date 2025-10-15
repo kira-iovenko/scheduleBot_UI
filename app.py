@@ -15,6 +15,14 @@ next_id = 5
 def get_employees():
     return employees
 
+@app.post("/employees")
+def add_employee(emp: dict):
+    global next_id
+    emp['id'] = next_id
+    next_id += 1
+    employees.append(emp)
+    return emp
+
 
 
 @app.get("/")
