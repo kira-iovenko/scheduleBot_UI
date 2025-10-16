@@ -20,7 +20,6 @@ settings = {
 }
 next_job_id = 1
 
-
 @app.get("/api/employees")
 def get_employees():
     return employees
@@ -30,6 +29,7 @@ def add_employee(emp: dict):
     global next_id
     emp['id'] = next_id
     next_id += 1
+    emp['job'] = emp['job'].lower()
     employees.append(emp)
     return emp
 
@@ -37,6 +37,8 @@ def add_employee(emp: dict):
 def update_employee(id: int, data: dict):
     for emp in employees:
         if emp["id"] == id:
+            if "job" in data:
+                data["job"] = data["job"].lower()
             emp.update(data)
             return emp
     return {"error": "Not found"}

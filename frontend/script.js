@@ -22,7 +22,7 @@ const employeeTableBody = document.getElementById('employeeTableBody');
 
 let editingIndex = null;
 
-let employees = []; 
+let employees = [];
 
 async function fetchEmployees() {
     try {
@@ -63,12 +63,16 @@ function loadEmployees() {
     employees.forEach((emp, index) => addEmployeeRow(emp, index));
 }
 
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 function addEmployeeRow(empData, index) {
     const row = document.createElement('tr');
     row.innerHTML = `
         <td>${escapeHtml(empData.name)}</td>
         <td>${escapeHtml(empData.age || 'N/A')}</td>
-        <td>${escapeHtml(empData.job)}</td>
+        <td>${escapeHtml(capitalize(empData.job))}</td>
         <td>${escapeHtml(empData.start)}</td>
         <td>${escapeHtml(empData.end)}</td>
         <td>
@@ -104,7 +108,7 @@ cancelBtn.addEventListener('click', () => {
     hideForm();
     clearForm();
 });
-saveBtn.addEventListener('click', () => {
+saveBtn.addEventListener('click', async () => {
     const name = document.getElementById('employeeName').value.trim();
     const age = document.getElementById('employeeAge').value.trim();
     const job = document.getElementById('employeeJob').value;
@@ -122,15 +126,38 @@ saveBtn.addEventListener('click', () => {
 
     const empData = { name, age, job, start, end };
 
-    if (editingIndex !== null) {
-        employees[editingIndex] = empData;
-        editingIndex = null;
-    } else {
-        employees.push(empData);
+    try {
+        if (editingIndex !== null) {
+            // Update existing employee
+            const id = employees[editingIndex].id;
+            const response = await fetch(`http://127.0.0.1:8000/api/employees/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(empData)
+            });
+            if (!response.ok) throw new Error('Failed to update employee');
+            const updated = await response.json();
+            employees[editingIndex] = updated;
+            editingIndex = null;
+        } else {
+            // Add new employee
+            const response = await fetch("http://127.0.0.1:8000/api/employees", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(empData)
+            });
+            if (!response.ok) throw new Error('Failed to add employee');
+            const newEmp = await response.json();
+            employees.push(newEmp);
+        }
+
+        clearForm();
+        hideForm();
+        loadEmployees();
+    } catch (err) {
+        console.error(err);
+        alert('Error saving employee to server.');
     }
-    clearForm();
-    hideForm();
-    loadEmployees();
 });
 
 fetchEmployees();
@@ -203,9 +230,9 @@ let settings = {
     showStart: "08:00",
     showEnd: "20:00",
     jobs: [
-        { name: "Manager" },
-        { name: "Server" },
-        { name: "Driver" }
+        { name: "manager" },
+        { name: "server" },
+        { name: "driver" }
     ]
 };
 
