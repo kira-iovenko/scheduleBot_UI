@@ -1,7 +1,8 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 app = FastAPI()
-
 
 employees = [
     {"id": 1, "name": "Alice Johnson", "age": 29, "job": "manager", "start": "08:00", "end": "16:00"},
@@ -20,11 +21,11 @@ settings = {
 next_job_id = 1
 
 
-@app.get("/employees")
+@app.get("/api/employees")
 def get_employees():
     return employees
 
-@app.post("/employees")
+@app.post("/api/employees")
 def add_employee(emp: dict):
     global next_id
     emp['id'] = next_id
@@ -32,7 +33,7 @@ def add_employee(emp: dict):
     employees.append(emp)
     return emp
 
-@app.put("/employees/{id}")
+@app.put("/api/employees/{id}")
 def update_employee(id: int, data: dict):
     for emp in employees:
         if emp["id"] == id:
@@ -40,15 +41,16 @@ def update_employee(id: int, data: dict):
             return emp
     return {"error": "Not found"}
 
-@app.delete("/employees/{id}")
+@app.delete("/api/employees/{id}")
 def delete_employee(id: int):
     global employees
     employees = [emp for emp in employees if emp["id"] != id]
     return {"message": "Deleted"}
 
-@app.post("/schedule")
+@app.post("/api/schedule")
 def schedule(data: dict):
-    schedule_grid = generate_schedule(data['employees'], data['demand'], data['school_in_session'])
+    # schedule_grid = generate_schedule(data['employees'], data['demand'], data['school_in_session'])
+    schedule_grid = {"schedule": "This is a placeholder schedule."}
     return schedule_grid
 
 demand_db = {} 
@@ -62,7 +64,8 @@ def save_demand(date: str, data: list):
     demand_db[date] = data
     return {"message": "Saved"}
 
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 @app.get("/")
-def read_root():
-    return {"message": "Hello World"}
+def serve_frontend():
+    return FileResponse("frontend/index.html")

@@ -22,12 +22,19 @@ const employeeTableBody = document.getElementById('employeeTableBody');
 
 let editingIndex = null;
 
-const employees = [
-    { name: "Alice Johnson", age: "29", job: "Manager", start: "08:00", end: "16:00" },
-    { name: "Ben Carter", age: "22", job: "Server", start: "10:00", end: "18:00" },
-    { name: "Clara Kim", age: "27", job: "Driver", start: "12:00", end: "20:00" },
-    { name: "David Lee", age: "35", job: "Server", start: "09:00", end: "17:00" }
-];
+let employees = []; 
+
+async function fetchEmployees() {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/employees");
+        if (!response.ok) throw new Error("Failed to fetch employees");
+        employees = await response.json();
+        loadEmployees();
+    } catch (err) {
+        console.error(err);
+        alert("Could not load employees from server");
+    }
+}
 
 function showForm() {
     employeeForm.style.display = 'block';
@@ -126,7 +133,7 @@ saveBtn.addEventListener('click', () => {
     loadEmployees();
 });
 
-loadEmployees();
+fetchEmployees();
 
 const demandTableBody = document.getElementById('demandTableBody');
 const addHourBtn = document.getElementById('addHourBtn');
