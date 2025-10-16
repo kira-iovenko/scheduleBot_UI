@@ -1,0 +1,140 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f7f7f7;
+  margin: 0;
+  padding: 0;
+}
+
+.main-header {
+  background-color: #004aad;
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-header h1 {
+  margin: 0 0 12px 0;
+  font-size: 24px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background-color: #ffffff;
+  color: #004aad;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.tab-btn:hover {
+  background-color: #e5e5e5;
+}
+
+.tab-btn.active {
+  background-color: #002e70;
+  color: #ffffff;
+}
+
+main {
+  padding: 24px;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.form-container {
+  background: white;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-container input,
+.form-container select {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.form-actions button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.save-btn {
+  background-color: #004aad;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #ccc;
+}
+
+.employee-list table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.employee-list th,
+.employee-list td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.employee-list th {
+  background-color: #f0f4ff;
+  color: #004aad;
+  font-weight: bold;
+}
+
+.employee-list tr:hover {
+  background-color: #f9f9f9;
+}
+
+.action-btn {
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.edit-btn {
+  background-color: #ffb703;
+  color: white;
+  margin-right: 5px;
+}
+
+.delete-btn {
+  background-color: #d62828;
+  color: white;
+}

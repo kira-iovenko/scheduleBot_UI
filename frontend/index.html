@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift Scheduler</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="main-header">
+        <h1>Shift Scheduler</h1>
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="employeesTab">Employees</button>
+            <button class="tab-btn" data-tab="demandTab">Demand</button>
+            <button class="tab-btn" data-tab="scheduleTab">Schedule Preview</button>
+            <button class="tab-btn" data-tab="settingsTab">Settings</button>
+        </nav>
+    </header>
+    <main>
+
+        <section id="employeesTab" class="tab-content active">
+            <div class="tab-header">
+                <h2>Employees</h2>
+                <button id="addEmployeeBtn">+ Add Employee</button>
+            </div>
+
+            <div class="form-container" id="employeeForm">
+                <h3>New Employee</h3>
+                <input type="text" id="employeeName" placeholder="Full Name">
+                <input type="number" id="employeeAge" placeholder="Age">
+
+                <select id="employeeJob">
+                    <option value="">Select Job</option>
+                    <option value="manager">Manager</option>
+                    <option value="server">Server</option>
+                    <option value="driver">Driver</option>
+                </select>
+
+                <label for="startTime">Availability Start:</label>
+                <input type="time" id="startTime">
+
+                <label for="endTime">Availability End:</label>
+                <input type="time" id="endTime">
+
+                <div class="form-actions">
+                    <button class="cancel-btn" id="cancelBtn">Cancel</button>
+                    <button class="save-btn" id="saveBtn">Save Employee</button>
+                </div>
+            </div>
+
+            <div class="employee-list">
+                <h3>Employee List</h3>
+                <table id="employeeTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Job</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="demandTab" class="tab-content">
+            <div class="tab-header">
+                <h2>Demand (for Today)</h2>
+                <label for="demandDate">Date:</label>
+                <select id="demandDate">
+                    <option value="2025-10-14">2025-10-14</option>
+                    <option value="2025-10-15">2025-10-15</option>
+                    <option value="2025-10-16">2025-10-16</option>
+                </select>
+            </div>
+
+            <table id="demandTable">
+                <thead>
+                    <tr>
+                        <th>Hour</th>
+                        <th>Manager</th>
+                        <th>Server</th>
+                        <th>Driver</th>
+                    </tr>
+                </thead>
+                <tbody id="demandTableBody"></tbody>
+            </table>
+
+            <div class="demand-actions">
+                <button id="addHourBtn">+ Add Hour</button>
+                <button id="saveDemandBtn">💾 Save Demand</button>
+            </div>
+        </section>
+
+
+        <section id="scheduleTab" class="tab-content">
+            <h2>Schedule Preview</h2>
+
+            <div class="schedule-preview">
+                <table id="scheduleTable">
+                    <thead>
+                        <tr>
+                            <th>Hour</th>
+                            <th>Manager</th>
+                            <th>Server</th>
+                            <th>Driver</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <section id="settingsTab" class="tab-content">
+            <h2>Settings</h2>
+
+            <div class="settings-section">
+                <label for="totalHours">Total Hour Cap:</label>
+                <input type="number" id="totalHours" min="0">
+            </div>
+
+            <div class="settings-section">
+                <h3>Show Hours</h3>
+                <label for="showStart">Start Time:</label>
+                <input type="time" id="showStart">
+
+                <label for="showEnd">End Time:</label>
+                <input type="time" id="showEnd">
+            </div>
+
+            <div class="settings-section">
+                <h3>Job List</h3>
+                <table id="jobTable">
+                    <thead>
+                        <tr>
+                            <th>Job</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobTableBody">
+                    </tbody>
+                </table>
+                <button id="addJobBtn">+ Add Job</button>
+            </div>
+
+            <div class="settings-actions">
+                <button id="saveSettingsBtn">💾 Save Settings</button>
+            </div>
+        </section>
+
+
+
+
+
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

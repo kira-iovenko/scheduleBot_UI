@@ -1,8 +1,9 @@
-name: Sync to Hugging Face
+name: Sync Frontend to Hugging Face
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -10,14 +11,31 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Push to Hugging Face Space
+      - name: Sync frontend to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_SECRET }}
         run: |
-          git config --global user.email "kira.iovenko@gmail.com"
-          git config --global user.name "kira-iovenko"
-          # Clone with token for authentication
-          git clone https://kiovenko:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
-          rsync -av --exclude='.git' ./ hf_space/
+          # 1️⃣ Clone HF Space repo
+          git clone https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
+
+          # 2️⃣ Enter the HF Space repo
           cd hf_space
-          git add .
-          git commit -m "Sync from GitHub" || echo "No changes to commit"
-          git push origin main
+
+          # 3️⃣ Configure Git identity (must be here, after cd)
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+          # 4️⃣ Remove old files except .git
+          find . -maxdepth 1 ! -name ".git" ! -name "." -exec rm -rf {} +
+
+          # 5️⃣ Copy frontend files into root
+          cp -R ../frontend/* ./
+
+          # 6️⃣ Stage all changes
+          git add -A
+
+          # 7️⃣ Commit if there are changes
+          git diff --cached --quiet || git commit -m "Sync frontend from GitHub"
+
+          # 8️⃣ Push to HF
+          git push origin main --force
