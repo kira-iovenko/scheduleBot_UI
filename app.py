@@ -48,6 +48,11 @@ demand_db = {}
 def get_demand(date: str):
     return demand_db.get(date, [])
 
+@app.post("/demand/{date}")
+def save_demand(date: str, data: list):
+    demand_db[date] = data
+    return {"message": "Saved"}
+
 
 @app.get("/")
 def read_root():
