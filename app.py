@@ -42,6 +42,12 @@ def schedule(data: dict):
     schedule_grid = generate_schedule(data['employees'], data['demand'], data['school_in_session'])
     return schedule_grid
 
+demand_db = {} 
+
+@app.get("/demand/{date}")
+def get_demand(date: str):
+    return demand_db.get(date, [])
+
 
 @app.get("/")
 def read_root():
