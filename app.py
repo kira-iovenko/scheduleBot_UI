@@ -11,6 +11,15 @@ employees = [
 ]
 next_id = 5
 
+settings = {
+    "total_hours": 40,
+    "show_start": "08:00",
+    "show_end": "20:00",
+    "jobs": ["Manager", "Server", "Driver"]
+}
+next_job_id = 1
+
+
 @app.get("/employees")
 def get_employees():
     return employees
