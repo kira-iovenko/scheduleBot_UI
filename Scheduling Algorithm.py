@@ -95,9 +95,9 @@ def generate_schedule(employees_data, demand_data, school_in_session):
         hours_used += 1
         anchors_used += 1
     
-    # STEP 3: Expand anchored shifts greedily
+    # STEP 3: Expand anchored shifts greedily (with spreading logic)
     while hours_used < cap_hours:
-        best_gain = 0
+        best_score = float('-inf')
         best_choice = None
         
         for id, intervals in shifts.items():
@@ -108,6 +108,10 @@ def generate_schedule(employees_data, demand_data, school_in_session):
             if hours_per_person.get(id, 0) >= daily_cap:
                 continue
             
+            # Calculate workload penalty - penalize employees with more hours
+            current_hours = hours_per_person.get(id, 0)
+            workload_penalty = current_hours * 0.1  # Adjust multiplier to control spreading
+            
             for idx, (start, end) in enumerate(intervals):
                 # Extend left
                 if start > info[1]:
@@ -117,8 +121,10 @@ def generate_schedule(employees_data, demand_data, school_in_session):
                         new_intervals[idx] = (candidate, end)
                         if respects_continuous_limit(new_intervals, info[3]):
                             gain = remaining_demand[candidate][job] if 0 <= candidate < len(remaining_demand) else 0
-                            if gain >= best_gain:
-                                best_gain = gain
+                            # Apply spreading: gain minus workload penalty
+                            score = gain - workload_penalty
+                            if score > best_score:
+                                best_score = score
                                 best_choice = (id, idx, "left", candidate)
                 # Extend right
                 if end < info[2]:
@@ -128,8 +134,10 @@ def generate_schedule(employees_data, demand_data, school_in_session):
                         new_intervals[idx] = (start, candidate)
                         if respects_continuous_limit(new_intervals, info[3]):
                             gain = remaining_demand[candidate][job] if 0 <= candidate < len(remaining_demand) else 0
-                            if gain >= best_gain:
-                                best_gain = gain
+                            # Apply spreading: gain minus workload penalty
+                            score = gain - workload_penalty
+                            if score > best_score:
+                                best_score = score
                                 best_choice = (id, idx, "right", candidate)
         
         # Try split shift if no contiguous expansion
@@ -151,10 +159,11 @@ def generate_schedule(employees_data, demand_data, school_in_session):
                 if candidate_hours:
                     h = candidate_hours[0]
                     best_choice = (id, None, "split", h)
-                    best_gain = remaining_demand[h][job] if 0 <= h < len(remaining_demand) else 0
+                    gain = remaining_demand[h][job] if 0 <= h < len(remaining_demand) else 0
+                    best_score = gain
                     break
         
-        if best_choice is None or best_gain <= 0:
+        if best_choice is None or best_score <= 0:
             break
         
         (id, idx, direction, new_hour) = best_choice
@@ -208,7 +217,131 @@ def generate_schedule(employees_data, demand_data, school_in_session):
             break
     
 
-    # STEP 5: Build schedule grid
+    # STEP 5: Replace or remove single-hour employees
+    # Identify employees scheduled for only 1 hour
+    single_hour_employees = [id for id, hours in hours_per_person.items() if hours == 1]
+    
+    for single_id in single_hour_employees:
+        # Get the hour this employee is scheduled
+        single_intervals = shifts.get(single_id, [])
+        if not single_intervals:
+            continue
+        
+        single_hour = single_intervals[0][0]  # Should be (h, h) for single hour
+        single_job = employees[single_id][0]
+        
+        replacement_found = False
+        best_replacement = None
+        
+        # Try to extend an existing employee's shift to cover this hour
+        for other_id, other_intervals in shifts.items():
+            if other_id == single_id:
+                continue
+            
+            other_info = employees[other_id]
+            other_job = other_info[0]
+            
+            # Must be same job type
+            if other_job != single_job:
+                continue
+            
+            # Check if this employee can work this hour
+            if not (other_info[1] <= single_hour <= other_info[2]):
+                continue
+            
+            if not legal_hour(single_hour, other_info[3], school_in_session):
+                continue
+            
+            # Check if expanding would violate constraints
+            daily_cap = get_daily_cap(other_info[3])
+            current_hours = hours_per_person.get(other_id, 0)
+            
+            if current_hours >= daily_cap:
+                continue
+            
+            # Try to extend adjacent to existing intervals
+            for idx, (start, end) in enumerate(other_intervals):
+                # Can we extend left to cover single_hour?
+                if single_hour == start - 1:
+                    new_intervals = other_intervals.copy()
+                    new_intervals[idx] = (single_hour, end)
+                    if respects_continuous_limit(new_intervals, other_info[3]):
+                        best_replacement = ('extend', other_id, idx, (single_hour, end))
+                        replacement_found = True
+                        break
+                
+                # Can we extend right to cover single_hour?
+                if single_hour == end + 1:
+                    new_intervals = other_intervals.copy()
+                    new_intervals[idx] = (start, single_hour)
+                    if respects_continuous_limit(new_intervals, other_info[3]):
+                        best_replacement = ('extend', other_id, idx, (start, single_hour))
+                        replacement_found = True
+                        break
+            
+            if replacement_found:
+                break
+        
+        # If no adjacent extension found, try split shift
+        if not replacement_found:
+            for other_id, other_intervals in shifts.items():
+                if other_id == single_id:
+                    continue
+                
+                other_info = employees[other_id]
+                other_job = other_info[0]
+                
+                # Must be same job type
+                if other_job != single_job:
+                    continue
+                
+                # Check if this employee can work this hour
+                if not (other_info[1] <= single_hour <= other_info[2]):
+                    continue
+                
+                if not legal_hour(single_hour, other_info[3], school_in_session):
+                    continue
+                
+                # Check if expanding would violate constraints
+                daily_cap = get_daily_cap(other_info[3])
+                current_hours = hours_per_person.get(other_id, 0)
+                
+                if current_hours >= daily_cap:
+                    continue
+                
+                # Check if this hour is far enough from existing shifts
+                existing_hours = []
+                for (s, e) in other_intervals:
+                    existing_hours.extend(range(s, e + 1))
+                
+                if all(abs(single_hour - eh) > 1 for eh in existing_hours):
+                    # Can add as split shift
+                    new_intervals = other_intervals + [(single_hour, single_hour)]
+                    if respects_continuous_limit(new_intervals, other_info[3]):
+                        best_replacement = ('split', other_id, None, single_hour)
+                        replacement_found = True
+                        break
+        
+        # Apply replacement if found, otherwise just delete
+        if replacement_found and best_replacement:
+            action, other_id, idx, new_data = best_replacement
+            
+            if action == 'extend':
+                shifts[other_id][idx] = new_data
+                hours_per_person[other_id] = hours_per_person.get(other_id, 0) + 1
+            elif action == 'split':
+                shifts[other_id].append((new_data, new_data))
+                hours_per_person[other_id] = hours_per_person.get(other_id, 0) + 1
+        
+        # Remove the single-hour employee (whether replaced or not)
+        if single_id in shifts:
+            del shifts[single_id]
+        if single_id in hours_per_person:
+            hours_removed = hours_per_person[single_id]
+            del hours_per_person[single_id]
+            hours_used -= hours_removed
+
+    # STEP 6: Build schedule grid
     schedule_grid = {hour: {job: [] for job in jobs} for hour in all_hours}
     for id, intervals in shifts.items():
         job_index = employees[id][0]
