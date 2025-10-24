@@ -1,4 +1,4 @@
-name: Sync Frontend to Hugging Face
+name: Sync Frontend + Backend to HF Docker Space
 
 on:
   push:
@@ -11,31 +11,31 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Sync frontend to Hugging Face Space
+      - name: Sync repo to new HF Docker Space
         env:
           HF_TOKEN: ${{ secrets.HF_SECRET }}
         run: |
           #Clone HF Space repo
-          git clone https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/scheduleBot_UI hf_space
+          git clone https://kiovenko:$HF_TOKEN@huggingface.co/spaces/kiovenko/ScheduleBot hf_space
 
           #Enter the HF Space repo
           cd hf_space
 
-          #Configure Git identity (must be here, after cd)
+          #Configure Git identity (must be here, after cd)          
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
           #Remove old files except .git
           find . -maxdepth 1 ! -name ".git" ! -name "." -exec rm -rf {} +
 
-          #Copy frontend files into root
-          cp -R ../frontend/* ./
+          #Copy files into root
+          cp -R ../* ./
 
           #Stage all changes
           git add -A
 
           #Commit if there are changes
-          git diff --cached --quiet || git commit -m "Sync frontend from GitHub"
+          git diff --cached --quiet || git commit -m "Sync repo for Docker Space"
 
           #Push to HF
           git push origin main --force
