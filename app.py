@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from schedule_generator import generate_schedule
 
 app = FastAPI()
 
@@ -51,8 +52,7 @@ def delete_employee(id: int):
 
 @app.post("/api/schedule")
 def schedule(data: dict):
-    # schedule_grid = generate_schedule(data['employees'], data['demand'], data['school_in_session'])
-    schedule_grid = {"schedule": "This is a placeholder schedule."}
+    schedule_grid = generate_schedule(data['employees'], data['demand'], data.get('school_in_session', False))
     return schedule_grid
 
 demand_db = {} 

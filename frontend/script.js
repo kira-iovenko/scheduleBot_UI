@@ -30,6 +30,7 @@ async function fetchEmployees() {
         if (!response.ok) throw new Error("Failed to fetch employees");
         employees = await response.json();
         loadEmployees();
+        await generateAndLoadSchedule();
     } catch (err) {
         console.error(err);
         alert("Could not load employees from server");
@@ -80,10 +81,18 @@ function addEmployeeRow(empData, index) {
             <button class="action-btn delete-btn">Delete</button>
         </td>
     `;
-    row.querySelector('.delete-btn').addEventListener('click', () => {
+    row.querySelector('.delete-btn').addEventListener('click', async() => {
         if (confirm(`Are you sure you want to delete ${empData.name}?`)) {
-            employees.splice(index, 1);
-            loadEmployees();
+            try {
+                const response = await fetch(`/api/employees/${empData.id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Failed to delete employee');
+                employees.splice(index, 1);
+                loadEmployees();
+                await generateAndLoadSchedule();
+            } catch (err) {
+                console.error(err);
+                alert('Failed to delete employee on server.');
+            }
         }
     });
     row.querySelector('.edit-btn').addEventListener('click', () => {
@@ -150,10 +159,10 @@ saveBtn.addEventListener('click', async () => {
             const newEmp = await response.json();
             employees.push(newEmp);
         }
-
         clearForm();
         hideForm();
         loadEmployees();
+        await generateAndLoadSchedule();
     } catch (err) {
         console.error(err);
         alert('Error saving employee to server.');
@@ -167,18 +176,21 @@ const addHourBtn = document.getElementById('addHourBtn');
 const saveDemandBtn = document.getElementById('saveDemandBtn');
 const demandDate = document.getElementById('demandDate');
 
-let demandData = {
-    "2025-10-14": [
-        { hour: "08:00", manager: 1, server: 2, driver: 1 },
-        { hour: "09:00", manager: 1, server: 3, driver: 1 },
-        { hour: "10:00", manager: 2, server: 3, driver: 2 }
-    ]
-};
+let demandData = {};
 
-function loadDemand(date) {
-    demandTableBody.innerHTML = '';
-    const rows = demandData[date] || [];
-    rows.forEach((slot, index) => addDemandRow(slot, index, date));
+async function loadDemand(date) {
+    try {
+        const response = await fetch(`/demand/${date}`);
+        if (!response.ok) throw new Error('Failed to fetch demand');
+        const rows = await response.json();
+        demandData[date] = rows;
+        demandTableBody.innerHTML = '';
+        rows.forEach((slot, index) => addDemandRow(slot, index, date));
+    } catch (err) {
+        console.error(err);
+        demandData[date] = [];
+        demandTableBody.innerHTML = '';
+    }
 }
 
 function addDemandRow(slot, index, date) {
@@ -199,7 +211,7 @@ addHourBtn.addEventListener('click', () => {
     loadDemand(currentDate);
 });
 
-saveDemandBtn.addEventListener('click', () => {
+saveDemandBtn.addEventListener('click', async () => {
     const currentDate = demandDate.value;
     const newRows = Array.from(demandTableBody.querySelectorAll('tr')).map(row => ({
         hour: row.querySelector('.hour-input').value,
@@ -208,8 +220,19 @@ saveDemandBtn.addEventListener('click', () => {
         driver: parseInt(row.querySelector('[data-role="driver"]').value)
     }));
     demandData[currentDate] = newRows;
-    alert(`Demand for ${currentDate} saved!`);
-    console.log(demandData);
+    try {
+        const response = await fetch(`/demand/${currentDate}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newRows)
+        });
+        if (!response.ok) throw new Error('Failed to save demand');
+        alert(`Demand for ${currentDate} saved!`);
+        await generateAndLoadSchedule();
+    } catch (err) {
+        console.error(err);
+        alert('Failed to save demand to server.');
+    }
 });
 
 demandDate.addEventListener('change', () => {
@@ -308,16 +331,7 @@ loadSettings();
 
 const scheduleTableBody = document.getElementById('scheduleTableBody');
 
-let scheduleData = [
-    { hour: "08:00", manager: ["Alice Johnson"], server: ["David Lee"], driver: [] },
-    { hour: "09:00", manager: ["Alice Johnson"], server: ["Ben Carter", "David Lee"], driver: [] },
-    { hour: "10:00", manager: ["Alice Johnson"], server: ["Ben Carter", "David Lee"], driver: ["Clara Kim"] },
-    { hour: "11:00", manager: [], server: ["Ben Carter"], driver: ["Clara Kim"] },
-    { hour: "12:00", manager: [], server: ["Ben Carter"], driver: ["Clara Kim"] },
-    { hour: "13:00", manager: ["Alice Johnson"], server: ["David Lee"], driver: ["Clara Kim"] },
-    { hour: "14:00", manager: ["Alice Johnson"], server: ["David Lee"], driver: ["Clara Kim"] },
-    { hour: "15:00", manager: [], server: ["Ben Carter"], driver: [] },
-];
+let scheduleData = [];
 
 function loadSchedule() {
     scheduleTableBody.innerHTML = '';
@@ -335,4 +349,41 @@ function loadSchedule() {
     });
 }
 
-loadSchedule();
+async function generateAndLoadSchedule() {
+    const employeesForApi = employees.map(emp => ({
+        id: emp.id, name: emp.name, job: emp.job, start: emp.start, end: emp.end, age: emp.age
+    }));
+    const demandForApi = demandData[demandDate.value] || [];
+    const demandMatrix = demandForApi.map(row => [row.manager, row.server, row.driver]);
+
+    try {
+        const res = await fetch('/api/schedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                employees: employeesForApi,
+                demand: demandMatrix,
+                school_in_session: false
+            })
+        });
+        if (!res.ok) throw new Error('Failed to generate schedule');
+        const data = await res.json();
+
+        const names = {};
+        employeesForApi.forEach(emp => { names[emp.id] = emp.name; });
+
+        scheduleData = Object.keys(data.schedule || {}).sort().map(hour => ({
+            hour: hour.padStart(2,'0') + ":00",
+            manager: (data.schedule[hour].manager || []).map(id => names[id]),
+            server: (data.schedule[hour].server || []).map(id => names[id]),
+            driver: (data.schedule[hour].driver || []).map(id => names[id])
+        }));
+
+        loadSchedule();
+    } catch (err) {
+        console.error(err);
+        alert('Failed to generate schedule from server.');
+    }
+}
+
+generateAndLoadSchedule();
