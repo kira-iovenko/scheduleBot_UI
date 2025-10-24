@@ -26,7 +26,7 @@ let employees = [];
 
 async function fetchEmployees() {
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/employees");
+        const response = await fetch("/api/employees");
         if (!response.ok) throw new Error("Failed to fetch employees");
         employees = await response.json();
         loadEmployees();
@@ -130,7 +130,7 @@ saveBtn.addEventListener('click', async () => {
         if (editingIndex !== null) {
             // Update existing employee
             const id = employees[editingIndex].id;
-            const response = await fetch(`http://127.0.0.1:8000/api/employees/${id}`, {
+            const response = await fetch(`/api/employees/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(empData)
@@ -141,7 +141,7 @@ saveBtn.addEventListener('click', async () => {
             editingIndex = null;
         } else {
             // Add new employee
-            const response = await fetch("http://127.0.0.1:8000/api/employees", {
+            const response = await fetch("/api/employees", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(empData)
