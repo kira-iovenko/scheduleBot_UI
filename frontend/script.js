@@ -354,6 +354,10 @@ async function generateAndLoadSchedule() {
         id: emp.id, name: emp.name, job: emp.job, start: emp.start, end: emp.end, age: emp.age
     }));
     const demandForApi = demandData[demandDate.value] || [];
+    if(demandForApi.length === 0) {
+        alert("Please enter at least one demand row before generating schedule.");
+        return;
+    }
     const demandMatrix = demandForApi.map(row => [row.manager, row.server, row.driver]);
 
     try {

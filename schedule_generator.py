@@ -22,6 +22,8 @@ def generate_schedule(employees_data, demand_data, school_in_session):
     num_jobs = 3
     cap_hours = 60
     # New: Per-hour cap for each job
+    if not demand_data:
+        demand_data = [[0]*num_jobs]
     per_hour_job_cap = [max([row[j] for row in demand_data]) for j in range(num_jobs)]
     all_hours = list(range(7, 23))
     
