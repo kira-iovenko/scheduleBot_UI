@@ -29,7 +29,7 @@ jobs:
           find . -maxdepth 1 ! -name ".git" ! -name "." -exec rm -rf {} +
 
           #Copy only needed files
-          cp ../Dockerfile ../app.py ../requirements.txt ../README.md -t .
+          cp ../Dockerfile ../app.py ../schedule_generator.py ../requirements.txt ../README.md -t .
           cp -R ../frontend ./frontend
 
           #Stage all changes
