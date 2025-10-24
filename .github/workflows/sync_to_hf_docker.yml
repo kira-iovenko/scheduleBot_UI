@@ -28,8 +28,9 @@ jobs:
           #Remove old files except .git
           find . -maxdepth 1 ! -name ".git" ! -name "." -exec rm -rf {} +
 
-          #Copy files into root
-          cp -R ../* ./
+          #Copy only needed files
+          cp ../Dockerfile ../app.py ../requirements.txt ../README.md -t .
+          cp -R ../frontend ./frontend
 
           #Stage all changes
           git add -A
