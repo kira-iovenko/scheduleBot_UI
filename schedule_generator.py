@@ -4,9 +4,9 @@ def generate_schedule(employees_data, demand_data, school_in_session):
     
     Args:
         employees_data: List of employee dicts from API
-            [{"id": 1, "name": "Alice", "age": 25, "job": "insider", "start": "09:00", "end": "17:00"}, ...]
+            [{"id": 1, "name": "Alice", "age": 25, "job": "server", "start": "09:00", "end": "17:00"}, ...]
         demand_data: 2D array [hour][job] representing demand
-            [[manager_demand, insider_demand, driver_demand], ...] for each hour 0-23
+            [[manager_demand, server_demand, driver_demand], ...] for each hour 0-23
         school_in_session: Boolean indicating if school is in session
     
     Returns:
@@ -18,7 +18,7 @@ def generate_schedule(employees_data, demand_data, school_in_session):
             "remaining_demand": [[...]]
         }
     """
-    jobs = ["manager", "insider", "driver"]
+    jobs = ["manager", "server", "driver"]
     num_jobs = 3
     cap_hours = 60
     # New: Per-hour cap for each job
@@ -36,7 +36,7 @@ def generate_schedule(employees_data, demand_data, school_in_session):
         job_name = emp['job'].lower()
         if job_name == "manager":
             job_idx = 0
-        elif job_name == "insider":
+        elif job_name == "server":
             job_idx = 1
         elif job_name == "driver":
             job_idx = 2

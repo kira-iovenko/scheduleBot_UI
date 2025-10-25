@@ -24,12 +24,12 @@ let editingIndex = null;
 
 let employees = [];
 
-async function fetchEmployees() {
+async function loadEmployees() {
     try {
         const response = await fetch("/api/employees");
         if (!response.ok) throw new Error("Failed to fetch employees");
         employees = await response.json();
-        loadEmployees();
+        displayEmployees();
         await generateAndLoadSchedule();
     } catch (err) {
         console.error(err);
@@ -59,7 +59,7 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;');
 }
 
-function loadEmployees() {
+function displayEmployees() {
     employeeTableBody.innerHTML = '';
     employees.forEach((emp, index) => addEmployeeRow(emp, index));
 }
@@ -87,7 +87,7 @@ function addEmployeeRow(empData, index) {
                 const response = await fetch(`/api/employees/${empData.id}`, { method: 'DELETE' });
                 if (!response.ok) throw new Error('Failed to delete employee');
                 employees.splice(index, 1);
-                loadEmployees();
+                displayEmployees();
                 await generateAndLoadSchedule();
             } catch (err) {
                 console.error(err);
@@ -137,7 +137,6 @@ saveBtn.addEventListener('click', async () => {
 
     try {
         if (editingIndex !== null) {
-            // Update existing employee
             const id = employees[editingIndex].id;
             const response = await fetch(`/api/employees/${id}`, {
                 method: 'PUT',
@@ -149,7 +148,6 @@ saveBtn.addEventListener('click', async () => {
             employees[editingIndex] = updated;
             editingIndex = null;
         } else {
-            // Add new employee
             const response = await fetch("/api/employees", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -161,7 +159,7 @@ saveBtn.addEventListener('click', async () => {
         }
         clearForm();
         hideForm();
-        loadEmployees();
+        displayEmployees();
         await generateAndLoadSchedule();
     } catch (err) {
         console.error(err);
@@ -169,14 +167,20 @@ saveBtn.addEventListener('click', async () => {
     }
 });
 
-fetchEmployees();
-
 const demandTableBody = document.getElementById('demandTableBody');
-const addHourBtn = document.getElementById('addHourBtn');
 const saveDemandBtn = document.getElementById('saveDemandBtn');
 const demandDate = document.getElementById('demandDate');
 
 let demandData = {};
+
+function create24HourTemplate() {
+    const rows = [];
+    for (let i = 0; i < 24; i++) {
+        const hourStr = i.toString().padStart(2, '0') + ":00";
+        rows.push({ hour: hourStr, manager: 0, server: 0, driver: 0 });
+    }
+    return rows;
+}
 
 async function loadDemand(date) {
     try {
@@ -184,41 +188,53 @@ async function loadDemand(date) {
         if (!response.ok) throw new Error('Failed to fetch demand');
         const rows = await response.json();
         demandData[date] = rows;
-        demandTableBody.innerHTML = '';
-        rows.forEach((slot, index) => addDemandRow(slot, index, date));
+        const fullRows = create24HourTemplate().map((base, i) => {
+            return rows[i] ? { ...base, ...rows[i] } : base;
+        });
+        demandData[date] = fullRows;
+        renderDemandTable(fullRows);
     } catch (err) {
         console.error(err);
-        demandData[date] = [];
-        demandTableBody.innerHTML = '';
+        demandData[date] = create24HourTemplate();
+        renderDemandTable(demandData[date]);
     }
 }
 
-function addDemandRow(slot, index, date) {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td><input type="time" value="${slot.hour}" class="hour-input"></td>
-        <td><input type="number" min="0" value="${slot.manager}" class="demand-input" data-role="manager"></td>
-        <td><input type="number" min="0" value="${slot.server}" class="demand-input" data-role="server"></td>
-        <td><input type="number" min="0" value="${slot.driver}" class="demand-input" data-role="driver"></td>
-    `;
-    demandTableBody.appendChild(row);
-}
+function renderDemandTable(rows) {
+    demandTableBody.innerHTML = '';
 
-addHourBtn.addEventListener('click', () => {
-    const currentDate = demandDate.value;
-    if (!demandData[currentDate]) demandData[currentDate] = [];
-    demandData[currentDate].push({ hour: "00:00", manager: 0, server: 0, driver: 0 });
-    loadDemand(currentDate);
-});
+    rows.forEach((slot) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${slot.hour}</td>
+            <td><input type="number" min="0" value="${slot.manager}" class="demand-input" data-role="manager"></td>
+            <td><input type="number" min="0" value="${slot.server}" class="demand-input" data-role="server"></td>
+            <td><input type="number" min="0" value="${slot.driver}" class="demand-input" data-role="driver"></td>
+        `;
+        demandTableBody.appendChild(row);
+    });
+    demandTableBody.querySelectorAll('.demand-input').forEach(input => {
+        const updateColor = () => {
+            if (Number(input.value) === 0) {
+                input.classList.add('zero');
+            } else {
+                input.classList.remove('zero');
+            }
+        };
+        updateColor();
+        input.addEventListener('input', updateColor);
+    });
+}
 
 saveDemandBtn.addEventListener('click', async () => {
     const currentDate = demandDate.value;
-    const newRows = Array.from(demandTableBody.querySelectorAll('tr')).map(row => ({
-        hour: row.querySelector('.hour-input').value,
-        manager: parseInt(row.querySelector('[data-role="manager"]').value),
-        server: parseInt(row.querySelector('[data-role="server"]').value),
-        driver: parseInt(row.querySelector('[data-role="driver"]').value)
+    const newRows = Array.from(demandTableBody.querySelectorAll('tr')).map((row, i) => ({
+        hour: i.toString().padStart(2, '0') + ":00",
+        manager: parseInt(row.querySelector('[data-role="manager"]').value) || 0,
+        server: parseInt(row.querySelector('[data-role="server"]').value) || 0,
+        driver: parseInt(row.querySelector('[data-role="driver"]').value) || 0
     }));
+
     demandData[currentDate] = newRows;
     try {
         const response = await fetch(`/demand/${currentDate}`, {
@@ -238,8 +254,6 @@ saveDemandBtn.addEventListener('click', async () => {
 demandDate.addEventListener('change', () => {
     loadDemand(demandDate.value);
 });
-
-loadDemand(demandDate.value);
 
 const jobTableBody = document.getElementById('jobTableBody');
 const addJobBtn = document.getElementById('addJobBtn');
@@ -326,8 +340,6 @@ saveSettingsBtn.addEventListener('click', () => {
     console.log(settings);
 });
 
-loadSettings();
-
 
 const scheduleTableBody = document.getElementById('scheduleTableBody');
 
@@ -355,7 +367,6 @@ async function generateAndLoadSchedule() {
     }));
     const demandForApi = demandData[demandDate.value] || [];
     if(demandForApi.length === 0) {
-        alert("Please enter at least one demand row before generating schedule.");
         return;
     }
     const demandMatrix = demandForApi.map(row => [row.manager, row.server, row.driver]);
@@ -376,12 +387,14 @@ async function generateAndLoadSchedule() {
         const names = {};
         employeesForApi.forEach(emp => { names[emp.id] = emp.name; });
 
-        scheduleData = Object.keys(data.schedule || {}).sort().map(hour => ({
-            hour: hour.padStart(2,'0') + ":00",
-            manager: (data.schedule[hour].manager || []).map(id => names[id]),
-            server: (data.schedule[hour].server || []).map(id => names[id]),
-            driver: (data.schedule[hour].driver || []).map(id => names[id])
-        }));
+        scheduleData = Object.keys(data.schedule || {})
+            .sort((a, b) => Number(a) - Number(b))
+            .map(hour => ({
+                hour: hour.padStart(2,'0') + ":00",
+                manager: (data.schedule[hour].manager || []).map(id => names[id]),
+                server: (data.schedule[hour].server || []).map(id => names[id]),
+                driver: (data.schedule[hour].driver || []).map(id => names[id])
+            }));
 
         loadSchedule();
     } catch (err) {
@@ -390,4 +403,13 @@ async function generateAndLoadSchedule() {
     }
 }
 
-generateAndLoadSchedule();
+async function initApp() {
+    await Promise.all([
+        loadEmployees(),
+        loadDemand(demandDate.value),
+    ]);
+    await generateAndLoadSchedule();
+    loadSettings();
+}
+
+initApp();

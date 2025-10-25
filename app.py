@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from schedule_generator import generate_schedule
@@ -26,8 +26,9 @@ def get_employees():
     return employees
 
 @app.post("/api/employees")
-def add_employee(emp: dict):
+async def add_employee(request: Request):
     global next_id
+    emp = await request.json()
     emp['id'] = next_id
     next_id += 1
     emp['job'] = emp['job'].lower()
@@ -35,7 +36,8 @@ def add_employee(emp: dict):
     return emp
 
 @app.put("/api/employees/{id}")
-def update_employee(id: int, data: dict):
+async def update_employee(id: int, request: Request):
+    data = await request.json()
     for emp in employees:
         if emp["id"] == id:
             if "job" in data:
@@ -51,7 +53,8 @@ def delete_employee(id: int):
     return {"message": "Deleted"}
 
 @app.post("/api/schedule")
-def schedule(data: dict):
+async def schedule(request: Request):
+    data = await request.json()
     schedule_grid = generate_schedule(data['employees'], data['demand'], data.get('school_in_session', False))
     return schedule_grid
 
@@ -62,7 +65,8 @@ def get_demand(date: str):
     return demand_db.get(date, [])
 
 @app.post("/demand/{date}")
-def save_demand(date: str, data: list):
+async def save_demand(date: str, request: Request):
+    data = await request.json()
     demand_db[date] = data
     return {"message": "Saved"}
 
