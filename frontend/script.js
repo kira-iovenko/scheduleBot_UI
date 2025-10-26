@@ -169,7 +169,8 @@ saveBtn.addEventListener('click', async () => {
 
 const demandTableBody = document.getElementById('demandTableBody');
 const saveDemandBtn = document.getElementById('saveDemandBtn');
-const demandDate = document.getElementById('demandDate');
+// const demandDate = document.getElementById('demandDate');
+const demandDate = "today";
 
 let demandData = {};
 
@@ -227,7 +228,7 @@ function renderDemandTable(rows) {
 }
 
 saveDemandBtn.addEventListener('click', async () => {
-    const currentDate = demandDate.value;
+    const currentDate = demandDate;
     const newRows = Array.from(demandTableBody.querySelectorAll('tr')).map((row, i) => ({
         hour: i.toString().padStart(2, '0') + ":00",
         manager: parseInt(row.querySelector('[data-role="manager"]').value) || 0,
@@ -251,9 +252,9 @@ saveDemandBtn.addEventListener('click', async () => {
     }
 });
 
-demandDate.addEventListener('change', () => {
-    loadDemand(demandDate.value);
-});
+// demandDate.addEventListener('change', () => {
+//     loadDemand(demandDate.value);
+// });
 
 const jobTableBody = document.getElementById('jobTableBody');
 const addJobBtn = document.getElementById('addJobBtn');
@@ -365,7 +366,7 @@ async function generateAndLoadSchedule() {
     const employeesForApi = employees.map(emp => ({
         id: emp.id, name: emp.name, job: emp.job, start: emp.start, end: emp.end, age: emp.age
     }));
-    const demandForApi = demandData[demandDate.value] || [];
+    const demandForApi = demandData[demandDate] || [];
     if(demandForApi.length === 0) {
         return;
     }
@@ -406,7 +407,7 @@ async function generateAndLoadSchedule() {
 async function initApp() {
     await Promise.all([
         loadEmployees(),
-        loadDemand(demandDate.value),
+        loadDemand(demandDate),
     ]);
     await generateAndLoadSchedule();
     loadSettings();
