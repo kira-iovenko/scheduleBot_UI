@@ -1,32 +1,11 @@
 def generate_schedule(employees_data, demand_data, school_in_session):
-    """
-    Main function to generate a schedule from API data.
-    
-    Args:
-        employees_data: List of employee dicts from API
-            [{"id": 1, "name": "Alice", "age": 25, "job": "server", "start": "09:00", "end": "17:00"}, ...]
-        demand_data: 2D array [hour][job] representing demand
-            [[manager_demand, server_demand, driver_demand], ...] for each hour 0-23
-        school_in_session: Boolean indicating if school is in session
-    
-    Returns:
-        dict: {
-            "schedule": {hour: {job: [employee_ids]}},
-            "shifts": {employee_id: [(start, end), ...]},
-            "hours_per_person": {employee_id: total_hours},
-            "total_hours": int,
-            "remaining_demand": [[...]]
-        }
-    """
     jobs = ["manager", "server", "driver"]
     num_jobs = 3
     cap_hours = 60
-    # New: Per-hour cap for each job
     if not demand_data:
         demand_data = [[0]*num_jobs]
     per_hour_job_cap = [max([row[j] for row in demand_data]) for j in range(num_jobs)]
     all_hours = list(range(7, 23))
-    
     # Convert API employee data to internal format
     employees = {}
     employee_names = {}
@@ -41,18 +20,15 @@ def generate_schedule(employees_data, demand_data, school_in_session):
         elif job_name == "driver":
             job_idx = 2
         else:
-            continue  # Skip unknown jobs
-        
+            continue  
         # Convert time strings to hours (e.g., "09:00" -> 9)
         start_hour = int(emp['start'].split(':')[0])
         end_hour = int(emp['end'].split(':')[0])
-        
         age = emp.get('age', 18)  # Default to 18 if no age provided
         if age == '' or age is None:
             age = 18
         else:
             age = int(age)
-        
         employees[emp_id] = [job_idx, start_hour, end_hour, age]
         employee_names[emp_id] = emp['name']
     
@@ -109,11 +85,9 @@ def generate_schedule(employees_data, demand_data, school_in_session):
             
             if hours_per_person.get(id, 0) >= daily_cap:
                 continue
-            
             # Calculate workload penalty - penalize employees with more hours
             current_hours = hours_per_person.get(id, 0)
             workload_penalty = current_hours * 0.1  # Adjust multiplier to control spreading
-            
             for idx, (start, end) in enumerate(intervals):
                 # Extend left
                 if start > info[1]:
@@ -141,7 +115,6 @@ def generate_schedule(employees_data, demand_data, school_in_session):
                             if score > best_score:
                                 best_score = score
                                 best_choice = (id, idx, "right", candidate)
-        
         # Try split shift if no contiguous expansion
         if best_choice is None and hours_used < cap_hours:
             for id, info in employees.items():
