@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedulux — Smarter Scheduling for Your Team</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #0F40C0;
+    --blue-dark: #0a2e8a;
+    --blue-light: #1a55e8;
+    --cream: #EDE8DC;
+    --cream-dark: #d4cebe;
+    --white: #ffffff;
+    --black: #0a0a0a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: var(--blue);
+    border-bottom: 3px solid var(--cream);
+  }
+
+  .nav-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 1.8rem;
+    color: var(--cream);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--cream);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+  }
+
+  .nav-links a:hover { opacity: 1; }
+
+  .nav-cta {
+    background: var(--cream);
+    color: var(--blue) !important;
+    padding: 0.5rem 1.4rem;
+    border-radius: 2px;
+    opacity: 1 !important;
+    font-weight: 700 !important;
+    transition: background 0.2s, color 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--white) !important; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    background: var(--blue);
+    display: flex;
+    align-items: center;
+    padding: 8rem 3rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cream);
+    opacity: 0.65;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: clamp(5rem, 12vw, 11rem);
+    line-height: 0.9;
+    color: var(--cream);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .hero-title span {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--cream);
+  }
+
+  .hero-sub {
+    font-size: 1.2rem;
+    color: var(--cream);
+    opacity: 0.8;
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+    font-weight: 300;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: var(--cream);
+    color: var(--blue);
+    padding: 1rem 2.5rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--white); transform: translateY(-2px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--cream);
+    padding: 1rem 2.5rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 2px solid rgba(237,232,220,0.5);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--cream); transform: translateY(-2px); }
+
+  .hero-stats {
+    position: absolute;
+    right: 3rem;
+    bottom: 3rem;
+    display: flex;
+    gap: 3rem;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+
+  .stat {
+    text-align: right;
+  }
+
+  .stat-number {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 3rem;
+    color: var(--cream);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--cream);
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.25rem;
+  }
+
+  /* PROBLEM SECTION */
+  .problem {
+    background: var(--cream);
+    padding: 7rem 3rem;
+    position: relative;
+  }
+
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 1rem;
+  }
+
+  .problem-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+  }
+
+  .problem-headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+
+  .problem-headline em {
+    font-style: normal;
+    color: var(--blue);
+  }
+
+  .problem-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .problem-card {
+    background: var(--blue);
+    padding: 1.8rem;
+    color: var(--cream);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--cream);
+    opacity: 0.4;
+  }
+
+  .problem-card:hover { transform: translateX(6px); }
+
+  .problem-card h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .problem-card p {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* FEATURES */
+  .features {
+    background: var(--black);
+    padding: 7rem 3rem;
+    color: var(--cream);
+  }
+
+  .features-header {
+    max-width: 1200px;
+    margin: 0 auto 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .features-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 6vw, 5rem);
+    text-transform: uppercase;
+    line-height: 0.95;
+  }
+
+  .features-title span { color: var(--blue-light); }
+
+  .features-desc {
+    max-width: 340px;
+    font-size: 0.95rem;
+    opacity: 0.6;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .features-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .feature-item {
+    background: #111;
+    padding: 2.5rem;
+    border-top: 3px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+    cursor: default;
+  }
+
+  .feature-item:hover {
+    border-color: var(--blue-light);
+    background: #161616;
+  }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--blue);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+  }
+
+  .feature-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    color: var(--cream);
+  }
+
+  .feature-desc {
+    font-size: 0.9rem;
+    opacity: 0.55;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* HOW IT WORKS */
+  .how {
+    background: var(--blue);
+    padding: 7rem 3rem;
+    color: var(--cream);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .how::before {
+    content: 'HOW';
+    position: absolute;
+    right: -2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 20rem;
+    color: rgba(255,255,255,0.04);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .how-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .how-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 6vw, 5rem);
+    text-transform: uppercase;
+    margin-bottom: 4rem;
+    line-height: 0.95;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+  }
+
+  .step {
+    border-top: 2px solid rgba(237,232,220,0.3);
+    padding-top: 2rem;
+  }
+
+  .step-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 5rem;
+    color: rgba(237,232,220,0.15);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .step-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  .step-desc {
+    font-size: 0.95rem;
+    opacity: 0.7;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* WHO */
+  .who {
+    background: var(--cream);
+    padding: 7rem 3rem;
+  }
+
+  .who-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .who-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    text-transform: uppercase;
+    line-height: 0.95;
+    margin-bottom: 1.5rem;
+  }
+
+  .who-title span { color: var(--blue); }
+
+  .who-text {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #333;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+  }
+
+  .audience-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .tag {
+    background: var(--blue);
+    color: var(--cream);
+    padding: 0.5rem 1.2rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .benefit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .benefit-item {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    padding: 1.5rem;
+    background: var(--blue);
+    color: var(--cream);
+  }
+
+  .benefit-check {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .benefit-text h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+  }
+
+  .benefit-text p {
+    font-size: 0.9rem;
+    opacity: 0.75;
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  /* CTA */
+  .cta {
+    background: var(--black);
+    padding: 8rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, var(--blue) 0%, transparent 70%);
+    opacity: 0.25;
+  }
+
+  .cta-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .cta-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    text-transform: uppercase;
+    color: var(--cream);
+    line-height: 0.9;
+    margin-bottom: 2rem;
+  }
+
+  .cta-title span { color: var(--blue-light); }
+
+  .cta-sub {
+    font-size: 1.1rem;
+    color: var(--cream);
+    opacity: 0.6;
+    font-weight: 300;
+    margin-bottom: 3rem;
+    line-height: 1.7;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--blue);
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 3px solid rgba(237,232,220,0.2);
+  }
+
+  .footer-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: var(--cream);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .footer-copy {
+    font-size: 0.8rem;
+    color: var(--cream);
+    opacity: 0.5;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* SCHEDULE PREVIEW WIDGET */
+  .schedule-preview {
+    background: var(--white);
+    border: 2px solid var(--blue);
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 8px 8px 0 var(--blue);
+  }
+
+  .schedule-header {
+    background: var(--blue);
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .schedule-header span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(237,232,220,0.6);
+  }
+
+  .schedule-header span.active {
+    color: var(--cream);
+    border-bottom: 2px solid var(--cream);
+  }
+
+  .schedule-body {
+    padding: 1.5rem;
+  }
+
+  .schedule-row {
+    display: grid;
+    grid-template-columns: 100px repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 6px;
+    align-items: center;
+  }
+
+  .schedule-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .shift {
+    height: 36px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: white;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  .shift-morning { background: var(--blue); }
+  .shift-afternoon { background: #2563c4; opacity: 0.8; }
+  .shift-off { background: #e5e7eb; color: #999; }
+  .shift-evening { background: var(--blue-dark); }
+
+  .day-headers {
+    display: grid;
+    grid-template-columns: 100px repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .day-header {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #666;
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 3rem; }
+    .hero-stats { display: none; }
+    .problem-layout, .who-inner { grid-template-columns: 1fr; gap: 3rem; }
+    .features-grid, .steps { grid-template-columns: 1fr; }
+    .features-header { flex-direction: column; gap: 1.5rem; align-items: flex-start; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Schedulux</div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#who">Who It's For</a></li>
+    <li><a href="#cta" class="nav-cta">Get Started</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Congressional App Challenge 2025–2026</p>
+    <h1 class="hero-title">
+      Schedule
+      <span>Smarter.</span>
+    </h1>
+    <p class="hero-sub">Stop spending hours rebuilding your team's schedule from scratch every week. Schedulux handles the complexity — so you don't have to.</p>
+    <div class="hero-buttons">
+      <a href="#cta" class="btn-primary">Try Schedulux Free</a>
+      <a href="#how" class="btn-secondary">See How It Works</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-number">20+</div>
+      <div class="stat-label">Employees, no problem</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">3×</div>
+      <div class="stat-label">Faster scheduling</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">0</div>
+      <div class="stat-label">Headaches</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="section-inner">
+    <p class="section-tag reveal">The Problem</p>
+    <div class="problem-layout">
+      <h2 class="problem-headline reveal">
+        Making schedules<br>is a<br><em>nightmare.</em>
+      </h2>
+      <div class="problem-cards">
+        <div class="problem-card reveal">
+          <h3>High Turnover, Constant Chaos</h3>
+          <p>With employees coming and going, you're rebuilding your schedule over and over — from scratch, every single time.</p>
+        </div>
+        <div class="problem-card reveal">
+          <h3>Last-Minute Changes Break Everything</h3>
+          <p>Someone calls out, and suddenly you're manually reshuffling a week's worth of shifts across 20 people. It shouldn't be this hard.</p>
+        </div>
+        <div class="problem-card reveal">
+          <h3>Time You Don't Have</h3>
+          <p>Hours spent on scheduling are hours not spent running your business. There's a better way.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-header reveal">
+    <h2 class="features-title">Built for<br><span>Real Teams.</span></h2>
+    <p class="features-desc">Every feature in Schedulux is designed for the specific chaos of managing hourly workers.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-item reveal">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-name">Instant Schedule Generation</div>
+      <p class="feature-desc">Input your team, their availability, and your requirements. Schedulux builds a complete schedule in seconds.</p>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon">🔄</div>
+      <div class="feature-name">One-Click Adjustments</div>
+      <p class="feature-desc">An employee just quit? Update the schedule on the fly without breaking every other shift in the process.</p>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon">📋</div>
+      <div class="feature-name">Availability Tracking</div>
+      <p class="feature-desc">Keep track of who can work when — and let Schedulux factor that in automatically every time you build a new week.</p>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon">👥</div>
+      <div class="feature-name">Multi-Employee Management</div>
+      <p class="feature-desc">Manage schedules for teams of any size. Whether it's 5 people or 50, Schedulux scales with your needs.</p>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon">📅</div>
+      <div class="feature-name">Week-Over-Week Reuse</div>
+      <p class="feature-desc">Don't start from zero every week. Duplicate and adapt previous schedules with just a few clicks.</p>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon">📣</div>
+      <div class="feature-name">Clear at a Glance</div>
+      <p class="feature-desc">See your whole team's week in one clean view. No spreadsheets, no confusion, no crossed wires.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEDULE PREVIEW -->
+<section style="background: var(--cream); padding: 5rem 3rem;">
+  <div class="section-inner">
+    <p class="section-tag reveal">Live Preview</p>
+    <p class="reveal" style="font-family: 'Barlow Condensed', sans-serif; font-weight:900; font-size: clamp(2rem,4vw,3.5rem); text-transform:uppercase; margin-bottom:2.5rem; line-height:0.95;">Your Week, <br>Organized Instantly.</p>
+    <div class="schedule-preview reveal" style="max-width: 700px;">
+      <div class="schedule-header">
+        <span class="active">Week View</span>
+        <span>Employees</span>
+        <span>Shifts</span>
+      </div>
+      <div class="schedule-body">
+        <div class="day-headers">
+          <div></div>
+          <div class="day-header">Mon</div>
+          <div class="day-header">Tue</div>
+          <div class="day-header">Wed</div>
+          <div class="day-header">Thu</div>
+          <div class="day-header">Fri</div>
+        </div>
+        <div class="schedule-row">
+          <div class="schedule-name">Jordan M.</div>
+          <div class="shift shift-morning">AM</div>
+          <div class="shift shift-morning">AM</div>
+          <div class="shift shift-off">OFF</div>
+          <div class="shift shift-morning">AM</div>
+          <div class="shift shift-morning">AM</div>
+        </div>
+        <div class="schedule-row">
+          <div class="schedule-name">Riley T.</div>
+          <div class="shift shift-off">OFF</div>
+          <div class="shift shift-afternoon">PM</div>
+          <div class="shift shift-afternoon">PM</div>
+          <div class="shift shift-afternoon">PM</div>
+          <div class="shift shift-off">OFF</div>
+        </div>
+        <div class="schedule-row">
+          <div class="schedule-name">Alex P.</div>
+          <div class="shift shift-evening">EVE</div>
+          <div class="shift shift-off">OFF</div>
+          <div class="shift shift-evening">EVE</div>
+          <div class="shift shift-evening">EVE</div>
+          <div class="shift shift-evening">EVE</div>
+        </div>
+        <div class="schedule-row">
+          <div class="schedule-name">Sam K.</div>
+          <div class="shift shift-morning">AM</div>
+          <div class="shift shift-morning">AM</div>
+          <div class="shift shift-afternoon">PM</div>
+          <div class="shift shift-off">OFF</div>
+          <div class="shift shift-afternoon">PM</div>
+        </div>
+        <div class="schedule-row">
+          <div class="schedule-name">Casey L.</div>
+          <div class="shift shift-off">OFF</div>
+          <div class="shift shift-off">OFF</div>
+          <div class="shift shift-morning">AM</div>
+          <div class="shift shift-morning">AM</div>
+          <div class="shift shift-morning">AM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <h2 class="how-title reveal">How It<br>Works.</h2>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <h3 class="step-title">Add Your Team</h3>
+        <p class="step-desc">Enter your employees, their roles, and their availability. Schedulux stores everything so you never have to re-enter it.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <h3 class="step-title">Set Your Needs</h3>
+        <p class="step-desc">Tell Schedulux how many people you need per shift, which hours need coverage, and any special requirements for the week.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <h3 class="step-title">Generate & Adjust</h3>
+        <p class="step-desc">Get a complete schedule instantly. Make any tweaks you need with a few clicks — and share it with your team right away.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IT HELPS -->
+<section class="who" id="who">
+  <div class="who-inner">
+    <div>
+      <p class="section-tag reveal">Who It's For</p>
+      <h2 class="who-title reveal">Made for <span>managers</span> who have enough on their plate.</h2>
+      <p class="who-text reveal">Whether you run a café, a retail shop, a warehouse, or any other operation with hourly employees — Schedulux was built for you. Stop letting scheduling eat up your day.</p>
+      <div class="audience-tags reveal">
+        <span class="tag">Restaurants</span>
+        <span class="tag">Retail</span>
+        <span class="tag">Warehouses</span>
+        <span class="tag">Healthcare</span>
+        <span class="tag">Hospitality</span>
+        <span class="tag">Any Small Business</span>
+      </div>
+    </div>
+    <div class="benefit-list">
+      <div class="benefit-item reveal">
+        <div class="benefit-check">✓</div>
+        <div class="benefit-text">
+          <h4>Reduce Scheduling Time</h4>
+          <p>What used to take hours now takes minutes. Spend that time on what actually matters.</p>
+        </div>
+      </div>
+      <div class="benefit-item reveal">
+        <div class="benefit-check">✓</div>
+        <div class="benefit-text">
+          <h4>Handle Turnover Gracefully</h4>
+          <p>High employee turnover stops being a scheduling catastrophe. Swap people in and out with ease.</p>
+        </div>
+      </div>
+      <div class="benefit-item reveal">
+        <div class="benefit-check">✓</div>
+        <div class="benefit-text">
+          <h4>Never Get Caught Short-Staffed</h4>
+          <p>Schedulux tracks coverage gaps automatically, so you always know who's working and when.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <div class="cta-inner">
+    <h2 class="cta-title reveal">Stop Scheduling.<br><span>Start Managing.</span></h2>
+    <p class="cta-sub reveal">Join the managers who've reclaimed their time. Schedulux makes team scheduling fast, flexible, and frustration-free.</p>
+    <div class="reveal">
+      <a href="#" class="btn-primary" style="font-size:1.2rem; padding: 1.2rem 3rem;">Get Started Today →</a>
+    </div>
+    <p class="reveal" style="margin-top:1.5rem; font-size:0.8rem; color:var(--cream); opacity:0.4; letter-spacing:0.1em; text-transform:uppercase;">Built for the Congressional App Challenge 2025–2026</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Schedulux</div>
+  <p class="footer-copy">© 2025 Shanaya Pal, Kira Iovenko & Colin Van Niman. All rights reserved.</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Stagger siblings
+  document.querySelectorAll('.problem-card, .feature-item, .step, .benefit-item').forEach((el, i) => {
+    el.style.transitionDelay = `${(i % 3) * 0.12}s`;
+  });
+</script>
+</body>
+</html>
