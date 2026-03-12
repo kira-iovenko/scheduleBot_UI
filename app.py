@@ -70,8 +70,8 @@ async def save_demand(date: str, request: Request):
     demand_db[date] = data
     return {"message": "Saved"}
 
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
 @app.get("/")
-def serve_frontend():
-    return FileResponse("frontend/index.html")
+def serve_root():
+    return FileResponse("index.html")
+
+app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="frontend")
